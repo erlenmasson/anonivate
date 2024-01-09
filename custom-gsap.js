@@ -214,21 +214,22 @@ let scrollTween = gsap.to(steps, {
 function setupTextSplitAnimation(step) {
   const headings = step.querySelectorAll(".step-heading");
   headings.forEach((heading) => {
-    const split = new SplitText(heading, { type: "words" }); // Changed to "words"
+    const split = new SplitText(heading, { type: "words, chars" });
     gsap.from(split.words, {
-      // Changed to "words"
       duration: 0.6,
-      //y: 20,
+      y: 20,
       opacity: 0,
-      stagger: 0.05,
-      ease: "power2.out",
+      stagger: 0.1,
+      duration: 2.5,
+      ease: "elastic.out(0.8,0.3)",
       scrollTrigger: {
         trigger: headings,
         containerAnimation: scrollTween,
-        start: "left 70%", // Adjust as needed
-        end: "right 70%", // Adjust as needed
-        scrub: true,
-        markers: true, // Enable markers for debugging
+        start: "left 70%",
+        end: "right 70%",
+        toggleActions: "play none reverse reverse",
+        // scrub: true,
+        // markers: true,
       },
     });
   });
@@ -236,3 +237,28 @@ function setupTextSplitAnimation(step) {
 
 // Apply the text split animation to each .step
 document.querySelectorAll(".step").forEach(setupTextSplitAnimation);
+
+// Function to set up scale-up and fade-in animation for the first image in each step
+function setupImageAnimation(step) {
+  const image = step.querySelector(".step-image-one");
+  if (image) {
+    gsap.from(image, {
+      scale: 0.5,
+      y: 20,
+      opacity: 0,
+      duration: 1.7,
+      ease: "elastic.out(0.5,0.3)",
+      scrollTrigger: {
+        trigger: image, // Use the specific image as the trigger
+        containerAnimation: scrollTween,
+        start: "left 70%",
+        end: "right 70%",
+        toggleActions: "play none reverse reverse",
+        // markers: true,
+      },
+    });
+  }
+}
+
+// Apply the image animation to each .step
+document.querySelectorAll(".step").forEach(setupImageAnimation);
