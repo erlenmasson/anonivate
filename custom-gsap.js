@@ -1,21 +1,23 @@
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger, ScrollSmoother, SplitText);
 
-// Function to check if the user prefers reduced motion
-function prefersReducedMotion() {
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+// Function to check if the device is a touch device
+function isTouchDevice() {
+  return (
+    "ontouchstart" in window ||
+    navigator.maxTouchPoints > 0 ||
+    navigator.msMaxTouchPoints > 0
+  );
 }
 
-// Initialize ScrollSmoother only if the user doesn't prefer reduced motion
-if (!prefersReducedMotion()) {
-  if (window.innerWidth > 768) {
-    ScrollSmoother.create({
-      smooth: 1,
-      effects: true,
-      smoothTouch: 0.4,
-    });
-    ScrollTrigger.normalizeScroll(true);
-  }
+// Initialize ScrollSmoother only on non-touch devices
+if (!isTouchDevice()) {
+  ScrollSmoother.create({
+    smooth: 1,
+    effects: true,
+    smoothTouch: 0, // This value is for non-touch devices
+  });
+  ScrollTrigger.normalizeScroll(true);
 }
 
 // Function to set the minimum height of .content for larger devices
@@ -65,18 +67,19 @@ window.onload = setMinHeightForContent;
 window.addEventListener("resize", setMinHeightForContent);
 
 // ScrollTrigger for each .pricing_item
-const marginSizePixels = 100; // Margin size in pixels
+const marginSizePixels = 30; // Margin size in pixels
 const pricingItems = document.querySelectorAll(".pricing_item");
 
 pricingItems.forEach((pricingItem, index) => {
   const triggerSettings = {
     trigger: pricingItem,
-    start: "top-=100",
+    start: "bottom 50%",
     end:
       index === pricingItems.length - 1
         ? "bottom bottom"
-        : `bottom-=${100 - marginSizePixels} top`,
+        : `bottom-=${30 - marginSizePixels} top`,
     pin: true,
+    anticipatePin: 1,
     scrub: true,
     markers: false,
   };
@@ -180,21 +183,56 @@ gsap
   .set(".navigation", { height: "200px", maxHeight: "none" })
   .to(".navigation", { height: "80px", ease: "none" });
 
-// GSAP animation for horizontal scrolling
+//
+
+// GSAP ScrollTrigger for horizontal scrolling of .steps within .steps-container
 let steps = document.querySelector(".steps");
 let stepsContainer = document.querySelector(".steps-container");
 
+let totalStepsWidth = 0;
+document.querySelectorAll(".step").forEach((step) => {
+  totalStepsWidth += step.offsetWidth;
+});
+
+let horizontalMoveDistance = totalStepsWidth - stepsContainer.offsetWidth;
+
 let scrollTween = gsap.to(steps, {
-  x: () => -(steps.scrollWidth - stepsContainer.offsetWidth),
+  x: () => -horizontalMoveDistance,
   ease: "none",
   scrollTrigger: {
     trigger: stepsContainer,
     start: "top top",
-    end: () => `${steps.scrollWidth - stepsContainer.offsetWidth}`,
-    scrub: 1,
-    pin: true,
+    end: "bottom bottom",
+    scrub: true,
+    pin: steps,
     anticipatePin: 1,
     invalidateOnRefresh: true,
-    markers: true, // Enable markers for debugging
   },
 });
+
+// Function to set up text split and horizontal fade-in animation for each .step-heading
+function setupTextSplitAnimation(step) {
+  const headings = step.querySelectorAll(".step-heading");
+  headings.forEach((heading) => {
+    const split = new SplitText(heading, { type: "words" }); // Changed to "words"
+    gsap.from(split.words, {
+      // Changed to "words"
+      duration: 0.6,
+      //y: 20,
+      opacity: 0,
+      stagger: 0.05,
+      ease: "power2.out",
+      scrollTrigger: {
+        trigger: headings,
+        containerAnimation: scrollTween,
+        start: "left 70%", // Adjust as needed
+        end: "right 70%", // Adjust as needed
+        scrub: true,
+        markers: true, // Enable markers for debugging
+      },
+    });
+  });
+}
+
+// Apply the text split animation to each .step
+document.querySelectorAll(".step").forEach(setupTextSplitAnimation);
