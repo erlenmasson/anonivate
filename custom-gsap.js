@@ -95,8 +95,8 @@ pricingItems.forEach((pricingItem, index) => {
   }
 });
 
-// Animation for each .heading-style-huge element
-const headings = document.querySelectorAll(".heading-style-huge");
+// Animation for each .animated-heading element
+const headings = document.querySelectorAll(".animated-heading");
 headings.forEach((heading) => {
   const split = new SplitText(heading, { type: "chars" });
   gsap
@@ -185,80 +185,80 @@ gsap
 
 //
 
-// GSAP ScrollTrigger for horizontal scrolling of .steps within .steps-container
-let steps = document.querySelector(".steps");
-let stepsContainer = document.querySelector(".steps-container");
+// Check if the window width is greater than 768 pixels (tablet size)
+if (window.innerWidth > 768) {
+  // GSAP ScrollTrigger for horizontal scrolling of .steps within .steps-container
+  let steps = document.querySelector(".steps");
+  let stepsContainer = document.querySelector(".steps-container");
 
-let totalStepsWidth = 0;
-document.querySelectorAll(".step").forEach((step) => {
-  totalStepsWidth += step.offsetWidth;
-});
-
-let horizontalMoveDistance = totalStepsWidth - stepsContainer.offsetWidth;
-
-let scrollTween = gsap.to(steps, {
-  x: () => -horizontalMoveDistance,
-  ease: "none",
-  scrollTrigger: {
-    trigger: stepsContainer,
-    start: "top top",
-    end: "bottom bottom",
-    scrub: true,
-    pin: steps,
-    anticipatePin: 1,
-    invalidateOnRefresh: true,
-  },
-});
-
-// Function to set up text split and horizontal fade-in animation for each .step-heading
-function setupTextSplitAnimation(step) {
-  const headings = step.querySelectorAll(".step-heading");
-  headings.forEach((heading) => {
-    const split = new SplitText(heading, { type: "words, chars" });
-    gsap.from(split.words, {
-      duration: 0.6,
-      y: 20,
-      opacity: 0,
-      stagger: 0.1,
-      duration: 2.5,
-      ease: "elastic.out(0.8,0.3)",
-      scrollTrigger: {
-        trigger: headings,
-        containerAnimation: scrollTween,
-        start: "left 70%",
-        end: "right 70%",
-        toggleActions: "play none reverse reverse",
-        // scrub: true,
-        // markers: true,
-      },
-    });
+  let totalStepsWidth = 0;
+  document.querySelectorAll(".step").forEach((step) => {
+    totalStepsWidth += step.offsetWidth;
   });
-}
 
-// Apply the text split animation to each .step
-document.querySelectorAll(".step").forEach(setupTextSplitAnimation);
+  let horizontalMoveDistance = totalStepsWidth - stepsContainer.offsetWidth;
 
-// Function to set up scale-up and fade-in animation for the first image in each step
-function setupImageAnimation(step) {
-  const image = step.querySelector(".step-image-one");
-  if (image) {
-    gsap.from(image, {
-      scale: 0.5,
-      y: 20,
-      opacity: 0,
-      duration: 1.7,
-      ease: "elastic.out(0.5,0.3)",
-      scrollTrigger: {
-        trigger: image, // Use the specific image as the trigger
-        containerAnimation: scrollTween,
-        start: "left 70%",
-        end: "right 70%",
-        toggleActions: "play none reverse reverse",
-        // markers: true,
-      },
+  let scrollTween = gsap.to(steps, {
+    x: () => -horizontalMoveDistance,
+    ease: "none",
+    scrollTrigger: {
+      trigger: stepsContainer,
+      start: "top top",
+      end: "bottom bottom",
+      scrub: true,
+      pin: steps,
+      anticipatePin: 1,
+      invalidateOnRefresh: true,
+    },
+  });
+
+  // Function to set up text split and horizontal fade-in animation for each .step-heading
+  function setupTextSplitAnimation(step) {
+    const headings = step.querySelectorAll(".step-heading");
+    headings.forEach((heading) => {
+      const split = new SplitText(heading, { type: "words, chars" });
+      gsap.from(split.words, {
+        duration: 0.6,
+        y: 20,
+        opacity: 0,
+        stagger: 0.1,
+        duration: 2.5,
+        ease: "elastic.out(0.8,0.3)",
+        scrollTrigger: {
+          trigger: headings,
+          containerAnimation: scrollTween,
+          start: "left 70%",
+          end: "right 70%",
+          toggleActions: "play none reverse none",
+        },
+      });
     });
   }
-}
 
-// Apply the image animation to each .step
-document.querySelectorAll(".step").forEach(setupImageAnimation);
+  // Apply the text split animation to each .step
+  document.querySelectorAll(".step").forEach(setupTextSplitAnimation);
+
+  // Function to set up scale-up and fade-in animation for the first image in each step
+  function setupImageAnimation(step) {
+    const image = step.querySelector(".step-image-one");
+    if (image) {
+      gsap.from(image, {
+        scale: 0.5,
+        y: 20,
+        opacity: 0,
+        duration: 1.7,
+        ease: "elastic.out(0.5,0.3)",
+        scrollTrigger: {
+          trigger: image,
+          containerAnimation: scrollTween,
+          start: "left 70%",
+          end: "right 70%",
+          toggleActions: "play none reverse none",
+        },
+      });
+    }
+  }
+
+  // Apply the image animation to each .step
+  document.querySelectorAll(".step").forEach(setupImageAnimation);
+}
